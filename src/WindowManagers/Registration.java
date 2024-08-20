@@ -1,6 +1,9 @@
 package WindowManagers;
 
 import BackEnd.App;
+import BackEnd.Data.DAO.UserDAO;
+import BackEnd.Data.DB.DatabaseInitializer;
+import BackEnd.Security.PasswordHasher;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -40,7 +43,16 @@ public class Registration extends JFrame {
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                app.showLoginWindow();
+                if (validateFields()) {
+                    String password = new String(txtPasswordInitial.getPassword());
+                    String hashedPassword = PasswordHasher.hashPassword(password);
+
+
+                    app.showLoginWindow();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please correct all the errors",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -61,7 +73,7 @@ public class Registration extends JFrame {
             }
 
             private void checkUsername() {
-                String username = String.valueOf(txtUsername);
+                String username = txtUsername.getText().trim();
 
                 if (meetUsernameCriteria(username)) {
                     labelUsernameCheck.setText("Username is allowed.");
@@ -134,7 +146,8 @@ public class Registration extends JFrame {
     }
 
     public boolean meetUsernameCriteria(String username) {
-        return username.contains("#") && username.length() <= 8;
+        username = username.trim();
+        return username.startsWith("#") && username.length() <= 8;
     }
 
     public boolean meetPasswordComplexity(String password) {
@@ -146,5 +159,62 @@ public class Registration extends JFrame {
 
     public boolean passwordsMatch(String initPassword, String finalPassword) {
         return Objects.equals(initPassword, finalPassword);
+    }
+
+    private boolean validateFields() {
+        boolean allValid = true;
+
+        if (txtFirstName.getText().trim().isEmpty()) {
+            labelFirstName.setForeground(Color.RED);
+            allValid = false;
+        } else {
+            labelFirstName.setForeground(Color.BLACK);
+        }
+
+        if (txtLastName.getText().trim().isEmpty()) {
+            labelLastName.setForeground(Color.RED);
+            allValid = false;
+        } else {
+            labelLastName.setForeground(Color.BLACK);
+        }
+
+        if (txtEmail.getText().trim().isEmpty() || !isValidEmail(txtEmail.getText())) {
+            labelEmail.setForeground(Color.RED);
+            allValid = false;
+        } else {
+            labelEmail.setForeground(Color.BLACK);
+        }
+
+        if (!meetUsernameCriteria(txtUsername.getText().trim())) {
+            labelUsername.setForeground(Color.RED);
+            allValid = false;
+        } else {
+            labelUsername.setForeground(Color.BLACK);
+        }
+
+        String initPassword = new String(txtPasswordInitial.getPassword());
+        String finalPassword = new String(txtPasswordFinal.getPassword());
+
+        if (!meetPasswordComplexity(initPassword)) {
+            labelPasswordCheck.setForeground(Color.RED);
+            allValid = false;
+        } else {
+            labelPasswordCheck.setForeground(Color.BLACK);
+        }
+
+        if (!passwordsMatch(initPassword, finalPassword)) {
+            labelPasswordMatchCheck.setForeground(Color.RED);
+            allValid = false;
+        } else {
+            labelPasswordMatchCheck.setForeground(Color.BLACK);
+        }
+
+        return allValid;
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pat = Pattern.compile(emailRegex);
+        return pat.matcher(email).matches();
     }
 }

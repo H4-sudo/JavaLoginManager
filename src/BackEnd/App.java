@@ -6,10 +6,14 @@ import WindowManagers.Registration;
 
 import javax.swing.*;
 
+import static BackEnd.Data.DB.DatabaseInitializer.initDatabase;
+
 public class App {
     private JFrame currentFrame;
 
     public static void main(String[] args) {
+        initDatabase();
+
         SwingUtilities.invokeLater(() -> {
             App app = new App();
             app.showLoginWindow();
