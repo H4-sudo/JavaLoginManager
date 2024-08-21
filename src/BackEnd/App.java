@@ -1,5 +1,6 @@
 package BackEnd;
 
+import BackEnd.Data.Models.User;
 import WindowManagers.Dashboard;
 import WindowManagers.Login;
 import WindowManagers.Registration;
@@ -38,12 +39,12 @@ public class App {
         currentFrame.setVisible(true);
     }
 
-    public void showDashboardWindow() {
+    public void showDashboardWindow(User user) {
         if (currentFrame != null) {
             currentFrame.dispose();
         }
 
-        currentFrame = new Dashboard(this);
+        currentFrame = new Dashboard(this, user);
         currentFrame.setVisible(true);
     }
 }

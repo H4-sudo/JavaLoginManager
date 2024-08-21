@@ -2,7 +2,8 @@ package WindowManagers;
 
 import BackEnd.App;
 import BackEnd.Data.DAO.UserDAO;
-import BackEnd.Data.DB.DatabaseInitializer;
+import BackEnd.Data.DB.DatabaseConnection;
+import BackEnd.Data.Models.User;
 import BackEnd.Security.PasswordHasher;
 
 import javax.swing.*;
@@ -11,6 +12,8 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -45,8 +48,22 @@ public class Registration extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (validateFields()) {
                     String password = new String(txtPasswordInitial.getPassword());
-                    String hashedPassword = PasswordHasher.hashPassword(password);
+                    String[] hashedPasswordAndSalt = PasswordHasher.hashPassword(password);
 
+                    User user = new User();
+                    user.setFirstName(txtFirstName.getText().trim());
+                    user.setLastName(txtLastName.getText().trim());
+                    user.setEmail(txtEmail.getText().trim());
+                    user.setUsername(txtUsername.getText().trim());
+                    user.setPassword(hashedPasswordAndSalt[1]);
+                    user.setSalt(hashedPasswordAndSalt[0]);
+
+                    try (Connection connection = DatabaseConnection.getConnection()) {
+                        UserDAO userDAO = new UserDAO(connection);
+                        userDAO.saveUser(user);
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
 
                     app.showLoginWindow();
                 } else {
@@ -145,11 +162,13 @@ public class Registration extends JFrame {
         });
     }
 
+//    Checks if the criteria for the username is met. Made it to be only 8 characters long for data quality.
     public boolean meetUsernameCriteria(String username) {
         username = username.trim();
-        return username.startsWith("#") && username.length() <= 8;
+        return username.startsWith("#") && username.length() == 8;
     }
 
+//    Regex to check if the password meets the minimum requirements.
     public boolean meetPasswordComplexity(String password) {
         return password.length() >= 8 &&
                 Pattern.compile("[A-Z]").matcher(password).find() &&
@@ -161,6 +180,7 @@ public class Registration extends JFrame {
         return Objects.equals(initPassword, finalPassword);
     }
 
+//    May look redundant, but it works as it should, also helps the user experience.
     private boolean validateFields() {
         boolean allValid = true;
 
@@ -211,8 +231,8 @@ public class Registration extends JFrame {
 
         return allValid;
     }
-
     private boolean isValidEmail(String email) {
+//        Made use of a stock standard email validation regex.
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         Pattern pat = Pattern.compile(emailRegex);
         return pat.matcher(email).matches();

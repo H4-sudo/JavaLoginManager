@@ -12,13 +12,14 @@ public class DatabaseInitializer {
         try (Connection connection = DriverManager.getConnection(dbURL)) {
             if (connection != null) {
                 Statement statement = connection.createStatement();
-                String sqlQuery = "CREATE TABLE IF NOT EXISTS User (" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                String sqlQuery = "CREATE TABLE IF NOT EXISTS Users (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE," +
                         "firstName TEXT NOT NULL," +
                         "lastName TEXT NOT NULL," +
                         "email TEXT NOT NULL UNIQUE," +
                         "username TEXT NOT NULL UNIQUE," +
-                        "password TEXT NOT NULL" +
+                        "password TEXT NOT NULL," +
+                        "salt TEXT NOT NULL" +
                         ");";
 
                 statement.execute(sqlQuery);

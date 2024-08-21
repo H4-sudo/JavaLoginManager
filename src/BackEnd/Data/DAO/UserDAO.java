@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// This is the Data Access Object for the user class.
 public class UserDAO {
     private final Connection connection;
 
@@ -13,8 +14,9 @@ public class UserDAO {
         this.connection = connection;
     }
 
+//    This is used to send the data that has been checked into the database for storage. DB used: SQLite
     public void saveUser(User user) throws SQLException {
-        String query = "INSERT INTO Users (firstName, lastName, email, username, password) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Users (firstName, lastName, email, username, password, salt) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, user.getFirstName());
@@ -22,41 +24,38 @@ public class UserDAO {
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getUsername());
             statement.setString(5, user.getPassword());
+            statement.setString(6, user.getSalt());
             statement.executeUpdate();
         }
     }
 
-    public List<User> getAllUsers() throws SQLException {
+    public User getUserByUsername(String username) throws SQLException {
+        String query = "SELECT * FROM Users WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapRowToUser(resultSet);
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<User> getAllUsernamesOnSystem() throws SQLException {
+        String query = "SELECT firstName, lastName FROM Users;";
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM Users";
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+
             while (resultSet.next()) {
-                users.add(mapRowToUser(resultSet));
+                User user = new User();
+                user.setFirstName(resultSet.getString("firstName"));
+                user.setLastName(resultSet.getString("lastName"));
+                users.add(user);
             }
         }
         return users;
-    }
-
-    public void updateUser(User user) throws SQLException {
-        String sql = "UPDATE Users SET firstName = ?, lastName = ?, email = ?, username = ?, password = ? WHERE Id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, user.getFirstName());
-            statement.setString(2, user.getLastName());
-            statement.setString(3, user.getEmail());
-            statement.setString(4, user.getUsername());
-            statement.setString(5, user.getPassword());
-            statement.setInt(6, user.getId());
-            statement.executeUpdate();
-        }
-    }
-
-    public void deleteUser(int id) throws SQLException {
-        String sql = "DELETE FROM Users WHERE Id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, id);
-            statement.executeUpdate();
-        }
     }
 
     private User mapRowToUser(ResultSet resultSet) throws SQLException {
@@ -67,6 +66,8 @@ public class UserDAO {
         user.setEmail(resultSet.getString("email"));
         user.setUsername(resultSet.getString("username"));
         user.setPassword(resultSet.getString("password"));
+        user.setSalt(resultSet.getString("salt"));
+
         return user;
     }
 }
