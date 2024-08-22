@@ -15,8 +15,6 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.concurrent.LinkedTransferQueue;
 
 public class Login extends JFrame {
     private JButton loginButton;
@@ -26,6 +24,7 @@ public class Login extends JFrame {
     private JTextField usernameInput;
     private JPasswordField userPassword;
     private JLabel usernameChecker;
+    private JLabel passwordLabel;
 
     public Login(App app) {
         setContentPane(mainPanel);
