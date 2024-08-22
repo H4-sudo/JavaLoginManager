@@ -1,5 +1,6 @@
 package BackEnd.Data.DAO;
 
+import BackEnd.Data.DB.DatabaseConnection;
 import BackEnd.Data.Models.User;
 
 import java.sql.*;
@@ -10,8 +11,8 @@ import java.util.List;
 public class UserDAO {
     private final Connection connection;
 
-    public UserDAO(Connection connection) {
-        this.connection = connection;
+    public UserDAO() throws SQLException{
+        this.connection = DatabaseConnection.getConnection();
     }
 
 //    This is used to send the data that has been checked into the database for storage. DB used: SQLite

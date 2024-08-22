@@ -34,9 +34,10 @@ public class Dashboard extends JFrame {
         tableModel.addColumn("Last Name");
 
         try {
-            UserDAO userDAO = new UserDAO(DatabaseConnection.getConnection());
+            UserDAO userDAO = new UserDAO();
             List<User> users = userDAO.getAllUsernamesOnSystem();
 
+            DatabaseConnection.reloadConnection();
             tableModel.addRow(new Object[]{"First Name", "Last Name"});
             for (User u : users) {
                 tableModel.addRow(new Object[]{u.getFirstName(), u.getLastName()});
@@ -48,6 +49,6 @@ public class Dashboard extends JFrame {
             throw new RuntimeException(e);
         }
 
-        logoutButton.addActionListener(e -> app.showLoginWindow());
+        logoutButton.addActionListener(_ -> app.showLoginWindow());
     }
 }
