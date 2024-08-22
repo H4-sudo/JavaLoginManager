@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-public class PasswordHasher {
+public class PasswordHashed {
     public static String[] hashPassword(String password) {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -37,7 +37,7 @@ public class PasswordHasher {
 
     private static byte[] generateSalt() {
         SecureRandom secureRandom = new SecureRandom();
-        byte[] salt = new byte[16];
+        byte[] salt = new byte[32];
         secureRandom.nextBytes(salt);
         return salt;
     }

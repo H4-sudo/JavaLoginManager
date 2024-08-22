@@ -1,5 +1,6 @@
 package BackEnd.Data.DAO;
 
+import BackEnd.Data.DB.DatabaseConnection;
 import BackEnd.Data.Models.User;
 
 import java.sql.*;
@@ -10,8 +11,8 @@ import java.util.List;
 public class UserDAO {
     private final Connection connection;
 
-    public UserDAO(Connection connection) {
-        this.connection = connection;
+    public UserDAO() throws SQLException{
+        this.connection = DatabaseConnection.getConnection();
     }
 
 //    This is used to send the data that has been checked into the database for storage. DB used: SQLite
@@ -56,6 +57,20 @@ public class UserDAO {
             }
         }
         return users;
+    }
+
+    public List<String> getUsernamesFromDB() throws SQLException {
+        String query = "SELECT username FROM Users;";
+        List<String> usernames = new ArrayList<>();
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                usernames.add(resultSet.getString("username"));
+            }
+        }
+        return usernames;
     }
 
     private User mapRowToUser(ResultSet resultSet) throws SQLException {

@@ -4,15 +4,12 @@ import BackEnd.App;
 import BackEnd.Data.DAO.UserDAO;
 import BackEnd.Data.DB.DatabaseConnection;
 import BackEnd.Data.Models.User;
-import BackEnd.Security.PasswordHasher;
+import BackEnd.Security.PasswordHashed;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -43,33 +40,34 @@ public class Registration extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (validateFields()) {
-                    String password = new String(txtPasswordInitial.getPassword());
-                    String[] hashedPasswordAndSalt = PasswordHasher.hashPassword(password);
+        labelPassword.setText("Password:");
+        labelPasswordConfirmation.setText("Confirm Password:");
 
-                    User user = new User();
-                    user.setFirstName(txtFirstName.getText().trim());
-                    user.setLastName(txtLastName.getText().trim());
-                    user.setEmail(txtEmail.getText().trim());
-                    user.setUsername(txtUsername.getText().trim());
-                    user.setPassword(hashedPasswordAndSalt[1]);
-                    user.setSalt(hashedPasswordAndSalt[0]);
+        registerButton.addActionListener(_ -> {
+            if (validateFields()) {
+                String password = new String(txtPasswordInitial.getPassword());
+                String[] hashedPasswordAndSalt = PasswordHashed.hashPassword(password);
 
-                    try (Connection connection = DatabaseConnection.getConnection()) {
-                        UserDAO userDAO = new UserDAO(connection);
-                        userDAO.saveUser(user);
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                User user = new User();
+                user.setFirstName(txtFirstName.getText().trim());
+                user.setLastName(txtLastName.getText().trim());
+                user.setEmail(txtEmail.getText().trim());
+                user.setUsername(txtUsername.getText().trim());
+                user.setPassword(hashedPasswordAndSalt[1]);
+                user.setSalt(hashedPasswordAndSalt[0]);
 
-                    app.showLoginWindow();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Please correct all the errors",
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                try {
+                    UserDAO userDAO = new UserDAO();
+                    userDAO.saveUser(user);
+                    DatabaseConnection.reloadConnection();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
                 }
+
+                app.showLoginWindow();
+            } else {
+                JOptionPane.showMessageDialog(null, "Please correct all the errors",
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
