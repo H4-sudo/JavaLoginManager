@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="JavaFormative:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/JavaFormative_jar</output-path>
+    <root id="archive" name="JavaFormative.jar">
+      <element id="module-output" name="JavaFormative" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/slf4j-api-1.7.36.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/sqlite-jdbc-3.46.1.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

@@ -23,7 +23,6 @@ public class DatabaseInitializer {
                         ");";
 
                 statement.execute(sqlQuery);
-                System.out.println("Table for user created.");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

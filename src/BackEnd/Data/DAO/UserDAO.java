@@ -58,6 +58,20 @@ public class UserDAO {
         return users;
     }
 
+    public List<String> getUsernamesFromDB() throws SQLException {
+        String query = "SELECT username FROM Users;";
+        List<String> usernames = new ArrayList<>();
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                usernames.add(resultSet.getString("username"));
+            }
+        }
+        return usernames;
+    }
+
     private User mapRowToUser(ResultSet resultSet) throws SQLException {
         User user = new User();
         user.setId(resultSet.getInt("Id"));
